@@ -2,31 +2,46 @@ import Phaser from 'phaser';
 import logoImg from './assets/logo.png';
 import background from './assets/background-castle.jpg'
 import TitleScene from './scenes/TitleScene'
+import WebFont from 'webfontloader';
 
-function loadFont(name, url) {
-    var newFont = new FontFace(name, `url(${url})`);
-    newFont.load().then(function (loaded) {
-        document.fonts.add(loaded);
-    }).catch(function (error) {
-        return error;
-    });
-}
+
+// function loadFont(name, url) {
+//     var newFont = new FontFace(name, `url(${url})`);
+//     newFont.load().then(function (loaded) {
+//         document.fonts.add(loaded);
+//     }).catch(function (error) {
+//         return error;
+//     });
+// }
 
 class MyGame extends Phaser.Scene
 {
     constructor ()
     {
-        super();
+        super({key: 'MyGame'});
     }
 
-    preload ()
-    {
+    preload() {
         this.load.image('logo', logoImg);
-        this.load.image('background', background)
-        // loadFont('MontserratVariableFont', './fonts/Montserrat-VariableFont_wght.ttf')
-        // loadFont('Montserrat-ExtraBold', './fonts/Montserrat-ExtraBold.ttf')
+        this.load.image('background', background);
+
+
+        // Configure the WebFontLoader
+        let webFontConfig = {
+          google: {
+            families: ['Montserrat:ExtraBold']
+          },
+          active: () => {
+              let creditStatement = this.add.text(400, 100, 'POWERED BY', { fontFamily: 'Montserrat', fontSize: 32 });
+              creditStatement.setOrigin(0.5, 0.5)
+            // Create your text object here
+        }
+    };
+
+        // Load the custom font using the WebFontLoader
+        WebFont.load(webFontConfig);
     }
-      
+
     create ()
     {
         // const background = this.add.image(300, 300, 'background')
@@ -37,10 +52,7 @@ class MyGame extends Phaser.Scene
 
 
         const logo = this.add.image(400, 300, 'logo');
-        let creditStatement = this.add.text(400, 100, 'POWERED BY', { fontFamily: 'Montserrat-ExtraBold'})
-        creditStatement.setOrigin(0.5, 0.5)
-        creditStatement.setFontSize = 200;
-      
+
         this.tweens.add({
             targets: logo,
             y: 450,
@@ -50,14 +62,26 @@ class MyGame extends Phaser.Scene
             loop: 0
         });
 
-        this.input.once('pointerdown', function () {
-            game.scene.start('TitleScene')
-        })
+        console.log("Game scene has loaded")
 
         // let menuButton = this.add.dom(200, 200, 'div', 'background-color: green;')
+
+
+
+        this.input.on('pointerup', () => {
+            this.cameras.main.fadeOut(500, 0, 0, 0);
+        });
+
+        this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, (cam, effect) => {
+            this.scene.start('TitleScene', {fadeIn: true})
+            // this.time.delayedCall(500, () => {
+            // })
+        })
     }
+    update() {
 
 
+    }
 
 }
 
@@ -70,12 +94,14 @@ const config = {
     dom: {
         createContainer: true
     },
-    // scene: [MyGame, TitleScene]
+    scene: [MyGame, TitleScene]
 };
 
 const game = new Phaser.Game(config);
-game.scene.add('MyGame', MyGame);
-// game.scene.start('MyGame')
+// game.scene.add('MyGame', MyGame);
+game.scene.start('MyGame')
 
-game.scene.add('TitleScene', TitleScene);
-game.scene.start('TitleScene')
+// game.scene.add('TitleScene', TitleScene);
+// game.scene.start('TitleScene')
+
+export default game
